@@ -1,9 +1,9 @@
+// HomeScreen.tsx
 import React from 'react';
 import Loading from '../../components/loading';
 import MembersList from '../../components/members-list';
 import MonthFilter from '../../components/month-filter';
 import {usePatota} from '../../contexts/PatotaContext';
-import './index.scss';
 
 function HomeScreen() {
   const {patota, loading} = usePatota();

@@ -1,8 +1,5 @@
 import React, {PropsWithChildren, useState} from 'react';
 import {Member} from '../../models/Member';
-import './index.scss';
-import {FiCheckCircle, FiXCircle} from 'react-icons/fi';
-import Button from '../button';
 import FormatValue from '../format-value';
 import PaymentModal from '../payment-modal';
 import {usePatota} from '../../contexts/PatotaContext';

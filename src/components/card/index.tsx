@@ -1,17 +1,16 @@
 import React, {PropsWithChildren, ReactElement} from 'react';
-import './index.scss';
 
 interface Props extends PropsWithChildren {
   header?: ReactElement;
 }
 
 function Card(props: Props) {
-  return <div className='card-container'>
-    <div className="header">
-        {props.header}
+  return (
+    <div className='bg-white rounded-xl shadow-md overflow-hidden mb-6'>
+      {props.header}
+      <div className='content'>{props.children}</div>
     </div>
-    {props.children}
-  </div>;
+  );
 }
 
 export default Card;

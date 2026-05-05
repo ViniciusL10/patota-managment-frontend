@@ -1,5 +1,5 @@
 import React from 'react';
-import CurrencyFormat from 'react-currency-format';
+import { NumericFormat } from 'react-number-format';
 
 interface Props {
   value: number;
@@ -7,7 +7,7 @@ interface Props {
 
 function FormatValue({value}: Props) {
   return (
-    <CurrencyFormat
+    <NumericFormat
       value={value}
       displayType={'text'}
       thousandSeparator={true}
