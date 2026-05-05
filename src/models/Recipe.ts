@@ -3,6 +3,5 @@ export interface Recipe {
   valuePerMember: number;
   totalMembers: number;
   payingMemebers: number;
-  savedMoney: number;
-  minimumValuePerMember: number
+  minimumValuePerMember: number;
 }
