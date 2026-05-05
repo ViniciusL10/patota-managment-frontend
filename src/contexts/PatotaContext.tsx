@@ -1,97 +1,87 @@
 import React, {createContext, PropsWithChildren, useContext, useEffect, useState} from 'react';
-import {Member} from '../models/Member';
 import {Patota} from '../models/Patota';
-import {getPatota, updateMemberPayment, updateSavedMoney} from '../services/patota-service';
+import {getPatota, updateMemberGoalkeeper, updateMemberPayment} from '../services/patota-service';
 import {getCurrentMonthAndYear} from '../utils/getCurrentMonthYear';
 
 const PatotaContext = createContext<PatotaContext>({});
 
 export const PatotaProvider = ({children}: PropsWithChildren) => {
+  const now = getCurrentMonthAndYear();
   const [patota, setPatota] = useState<Patota>();
   const [loading, setLoading] = useState<boolean>(false);
-  const [monthYear, setMonthYear] = useState<string>();
-  const [minimumValuePerMember, setMinimumValuePerMember] = useState(0);
-  const [payingMemebers, setpayingMemebers] = useState(0);
+  const [selectedMonth, setSelectedMonth] = useState<number>(now.month);
+  const [selectedYear, setSelectedYear] = useState<number>(now.year);
 
-  const setMonthYearValue = () => {
-    const {month, year} = getCurrentMonthAndYear();
-    setMonthYear(`${month}#${year}`);
+  const isCurrentMonth = selectedMonth === now.month && selectedYear === now.year;
+
+  const goToPreviousMonth = () => {
+    if (selectedMonth === 1) {
+      setSelectedMonth(12);
+      setSelectedYear((y) => y - 1);
+    } else {
+      setSelectedMonth((m) => m - 1);
+    }
   };
 
-  const getMinimiumValuerPerMember = (totalCoast: number, totalMembers: number) => {
-    const total = totalCoast / totalMembers;
-
-    return Number(total.toFixed(2));
-  };
-
-  const getPayingMembers = (members: Member[]) => {
-    const payingMembers = members.filter(({paid}) => paid);
-
-    return payingMembers.length;
+  const goToNextMonth = () => {
+    if (isCurrentMonth) return;
+    if (selectedMonth === 12) {
+      setSelectedMonth(1);
+      setSelectedYear((y) => y + 1);
+    } else {
+      setSelectedMonth((m) => m + 1);
+    }
   };
 
   const updatePayment = async (id: string, paid: boolean) => {
-    const {month, year} = getCurrentMonthAndYear();
-    await updateMemberPayment(month.toString(), year.toString(), paid, id);
-    const members = [...patota!.members];
-    const newMembersValue = members.map((member) => {
-      if (member.id === id) return {...member, paid};
-
-      return member;
-    });
-    return newMembersValue;
+    await updateMemberPayment(selectedMonth.toString(), selectedYear.toString(), paid, id);
+    return patota!.members.map((member) => (member.id === id ? {...member, paid} : member));
   };
 
-  const updatePatotaSavedMoney = async () => {
-    const {month, year} = getCurrentMonthAndYear();
-
-    const {savedMoney: currentSavedMoney, valuePerMember} = patota!;
-
-    const paymentDiference = valuePerMember - minimumValuePerMember!;
-
-    if (paymentDiference > 0) {
-      const savedMoney = currentSavedMoney + paymentDiference;
-      await updateSavedMoney(month.toString(), year.toString(), savedMoney);
-
-      return savedMoney;
-    }
-
-    return patota!.savedMoney;
-  };
-
-  const updateMemberPaymentAndSavedMoney = async (memberId: string) => {
+  const updateMemberPayment_ = async (memberId: string) => {
     setLoading(true);
     const currentMembers = await updatePayment(memberId, true);
-    const savedMoney = await updatePatotaSavedMoney();
-
-    setPatota({...patota!, members: currentMembers, savedMoney});
-    setpayingMemebers(getPayingMembers(currentMembers));
+    setPatota({...patota!, members: currentMembers});
     setLoading(false);
   };
 
+  const toggleGoalkeeper = async (memberId: string, isGoalkeeper: boolean) => {
+    await updateMemberGoalkeeper(selectedMonth.toString(), selectedYear.toString(), isGoalkeeper, memberId);
+    const updatedMembers = patota!.members.map((m) =>
+      m.id === memberId ? {...m, isGoalkeeper} : m
+    );
+    setPatota({...patota!, members: updatedMembers});
+  };
+
   useEffect(() => {
-    const getPatotaFromService = async () => {
+    const fetchPatota = async () => {
       setLoading(true);
-      const {month, year} = getCurrentMonthAndYear();
-      const response = await getPatota(`${year}`, `${month}`);
-      const {members, totalCost} = response;
-
-      setMinimumValuePerMember(getMinimiumValuerPerMember(totalCost, members?.length));
-      setpayingMemebers(getPayingMembers(members));
-
-      setPatota({
-        ...response,
-      });
-      setLoading(false);
+      try {
+        const response = await getPatota(`${selectedYear}`, `${selectedMonth}`);
+        setPatota(response);
+      } catch {
+        setPatota(undefined);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    setMonthYearValue();
-    getPatotaFromService();
-  }, []);
+    fetchPatota();
+  }, [selectedMonth, selectedYear]);
 
   return (
     <PatotaContext.Provider
-      value={{patota, loading, monthYear, minimumValuePerMember, payingMemebers, updateMemberPaymentAndSavedMoney}}
+      value={{
+        patota,
+        loading,
+        selectedMonth,
+        selectedYear,
+        isCurrentMonth,
+        goToPreviousMonth,
+        goToNextMonth,
+        updateMemberPayment: updateMemberPayment_,
+        toggleGoalkeeper,
+      }}
     >
       {children}
     </PatotaContext.Provider>
@@ -104,9 +94,12 @@ export function usePatota() {
 
 interface PatotaContext {
   patota?: Patota;
-  payingMemebers?: number;
-  minimumValuePerMember?: number;
-  monthYear?: string;
   loading?: boolean;
-  updateMemberPaymentAndSavedMoney?: (memberId: string) => Promise<void>;
+  selectedMonth?: number;
+  selectedYear?: number;
+  isCurrentMonth?: boolean;
+  goToPreviousMonth?: () => void;
+  goToNextMonth?: () => void;
+  updateMemberPayment?: (memberId: string) => Promise<void>;
+  toggleGoalkeeper?: (memberId: string, isGoalkeeper: boolean) => Promise<void>;
 }

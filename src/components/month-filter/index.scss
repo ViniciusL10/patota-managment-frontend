@@ -1,0 +1,33 @@
+.month-filter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  .label {
+    font-size: 1rem;
+    font-weight: 600;
+    min-width: 140px;
+    text-align: center;
+  }
+
+  .arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 50%;
+    transition: background 0.2s;
+
+    &:hover:not(:disabled) {
+      background: rgba(0, 0, 0, 0.08);
+    }
+
+    &:disabled {
+      opacity: 0.3;
+      cursor: default;
+    }
+  }
+}
