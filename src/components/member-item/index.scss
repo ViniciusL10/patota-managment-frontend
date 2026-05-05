@@ -5,6 +5,9 @@
 
   .name {
     width: 35%;
+    display: flex;
+    align-items: center;
+    gap: 6px;
   }
 
   .value {
@@ -17,6 +20,29 @@
 
   .button {
     margin-left: auto;
+  }
+
+  .goalkeeper-badge {
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    background: none;
+    color: #aaa;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &.active {
+      background: #e8f4ff;
+      border-color: #4a90d9;
+      color: #4a90d9;
+    }
+
+    &:hover {
+      border-color: #4a90d9;
+      color: #4a90d9;
+    }
   }
 }
 

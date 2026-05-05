@@ -11,10 +11,10 @@ export interface Props extends PropsWithChildren {
 }
 
 function MembersList(props: Props) {
-  const {updateMemberPaymentAndSavedMoney} = usePatota();
+  const {updateMemberPayment} = usePatota();
 
   const handleMemberPayment = async (member: Member) => {
-    await updateMemberPaymentAndSavedMoney!(member.id);
+    await updateMemberPayment!(member.id);
   };
 
   return (

@@ -8,6 +8,17 @@ export async function getPatota(year: string, month: string): Promise<Patota> {
   return response.data;
 }
 
+export async function updateMemberGoalkeeper(
+  month: string,
+  year: string,
+  isGoalkeeper: boolean,
+  memberId: string,
+): Promise<Member> {
+  const response = await api.post<Member>(`/updateMemberGoalkeeper/${memberId}`, {isGoalkeeper, month, year});
+
+  return response.data;
+}
+
 export async function updateMemberPayment(
   month: string,
   year: string,
@@ -15,12 +26,6 @@ export async function updateMemberPayment(
   memberId: string,
 ): Promise<Member> {
   const response = await api.post<Member>(`/updateMemberPayment/${memberId}`, {paid, month, year});
-
-  return response.data;
-}
-
-export async function updateSavedMoney(month: string, year: string, savedMoney: number): Promise<Patota> {
-  const response = await api.post<Patota>(`/updateSavedMoney`, {savedMoney, month, year});
 
   return response.data;
 }
